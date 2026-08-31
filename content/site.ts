@@ -1,4 +1,4 @@
-﻿/**
+/**
  * CYBEROCO — canonical site configuration.
  *
  * Single source of truth for site identity, navigation, footer link columns
@@ -10,7 +10,8 @@
 export const site = {
   name: "CYBEROCO",
   legalName: "Cyberoco Technologies",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.cyberoco.tech",
+  // trim() + || handles both unset AND empty-string values (empty NEXT_PUBLIC_SITE_URL broke Vercel builds via new URL(""))
+  url: process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://www.cyberoco.tech",
   email: "info@cyberoco.tech",
   tagline: "Cyber Security, Secure Development & AI Automation",
   description:
