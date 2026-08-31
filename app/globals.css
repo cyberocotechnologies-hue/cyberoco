@@ -474,6 +474,7 @@ img { max-width: 100%; display: block; }
 .mobile-menu.open > ul > li:nth-child(6) { transition-delay: 0.3s; }
 .mobile-menu.open > ul > li:nth-child(7) { transition-delay: 0.35s; }
 .mobile-menu.open > ul > li:nth-child(8) { transition-delay: 0.4s; }
+.mobile-menu.open > ul > li:nth-child(9) { transition-delay: 0.45s; }
 
 /* Unify plain links and dropdown-toggle buttons at the top level so
    "Blog" / "CT Signals" / "Contact" match "Services" / "Industries" etc. */
@@ -624,6 +625,109 @@ img { max-width: 100%; display: block; }
   line-height: 1.4;
 }
 
+/* ── Mega menu (Services — desktop only) ── */
+
+/* Two-column Services panel. Rides on .nav-dropdown for position, blur,
+   border, shadow and the hover/open visibility rules; the grid layout,
+   width and zero padding are layered on here. */
+.mega-menu {
+  display: grid;
+  grid-template-columns: 16rem 1fr;
+  width: 42rem;
+  max-width: calc(100vw - 4rem);
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Explicit mobile kill-switch: .nav-links is already hidden below 768px,
+   but the grid layout must never leak onto small screens. */
+@media (max-width: 767px) {
+  .mega-menu { display: none; }
+}
+
+/* Widen the hover bridge to match the mega panel so diagonal pointer travel
+   into the panel's far edges never leaves the hoverable li. */
+.nav-item.has-dropdown.mega-host::after { width: 43rem; }
+
+.mega-cats {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0;
+  border-right: 1px solid rgba(0,0,0,0.08);
+}
+
+.mega-cat {
+  position: relative;
+  display: block;
+  padding: 0.9rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--gray-600);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out-expo),
+              background-color var(--dur-fast) var(--ease-out-expo);
+}
+
+.mega-cat:hover { color: var(--black); }
+
+.mega-cat.active { color: var(--black); background: var(--gray-50); }
+
+.mega-cat.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--black);
+}
+
+.mega-all {
+  display: block;
+  margin-top: auto;
+  padding: 0.8rem 1.25rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--gray-500);
+  text-decoration: none;
+  border-top: 1px solid var(--gray-200);
+  transition: color var(--dur-fast) var(--ease-out-expo);
+}
+
+.mega-all:hover { color: var(--black); }
+
+.mega-items {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0;
+}
+
+.mega-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.85rem 1.5rem;
+  text-decoration: none;
+  transition: background-color var(--dur-fast) var(--ease-out-expo);
+}
+
+.mega-item:hover { background: var(--gray-50); }
+
+.mega-item-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--black);
+}
+
+.mega-item-desc {
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: var(--gray-500);
+}
 /* ── Mobile accordion submenus ── */
 
 .mobile-nav-toggle {
@@ -669,7 +773,11 @@ img { max-width: 100%; display: block; }
   transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1), margin-top 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.mobile-nav-item.open .mobile-submenu {
+/* 48rem cap: with nested categories exclusive, the Services submenu
+   (3 category rows + one nested list of up to 7 sub-items) peaks around
+   35rem — 48rem leaves headroom. Direct-child selector on purpose: nested
+   .mobile-cat-list submenus must not uncollapse with their parent. */
+.mobile-nav-item.open > .mobile-submenu {
   max-height: 48rem;
   margin-top: 0.25rem;
 }
@@ -701,6 +809,84 @@ img { max-width: 100%; display: block; }
   margin-top: 0.15rem;
 }
 
+/* ── Mobile: nested service categories ── */
+
+.mobile-cat + .mobile-cat {
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+
+.mobile-cat-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Category link: same touch target as sibling links, but black + medium
+   weight — it acts as the heading of its own sub-list. */
+.mobile-cat-row a {
+  flex: 1;
+  color: var(--black);
+  font-weight: 500;
+}
+
+/* Chevron toggle: separate 44px touch target from the row link. */
+.mobile-cat-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+/* Own caret (not .mobile-nav-caret) so the parent accordion's open state
+   never rotates the nested carets. */
+.mobile-cat-caret {
+  position: relative;
+  width: 1rem;
+  height: 1rem;
+  font-size: 0;
+  color: transparent;
+}
+
+.mobile-cat-caret::before,
+.mobile-cat-caret::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  background: var(--gray-500);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
+}
+
+.mobile-cat-caret::before { width: 1rem; height: 1px; transform: translate(-50%, -50%); }
+.mobile-cat-caret::after { width: 1px; height: 1rem; transform: translate(-50%, -50%); }
+
+.mobile-cat.open .mobile-cat-caret::before,
+.mobile-cat.open .mobile-cat-caret::after { background: var(--black); }
+.mobile-cat.open .mobile-cat-caret::after {
+  transform: translate(-50%, -50%) rotate(90deg) scaleY(0);
+}
+
+.mobile-cat-list {
+  margin-left: 0.25rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--gray-200);
+}
+
+.mobile-cat.open > .mobile-cat-list {
+  max-height: 48rem;
+  margin-top: 0.25rem;
+}
+
+.mobile-submenu a.active {
+  color: var(--black);
+  font-weight: 500;
+}
 /* ════════════════════════════════════════════════════════════════
    FOOTER
 ════════════════════════════════════════════════════════════════ */

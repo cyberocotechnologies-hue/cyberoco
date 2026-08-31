@@ -1,10 +1,10 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { industriesNav, resourcesNav, servicesNav, topNav } from "@/content/site";
+import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { industriesNav, megaMenu, resourcesNav, topNav } from "@/content/site";
 import MobileMenu from "@/components/layout/MobileMenu";
 
 type DropdownKey = "services" | "industries" | "resources";
@@ -21,6 +21,20 @@ const resourceSectionPrefixes = ["/resources", ...resourcesNav.map((item) => ite
 
 function sectionActive(prefixes: string[], pathname: string): boolean {
   return prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
+/* Default mega-menu category: the one covering the current page, else the
+   first (Cybersecurity — a security firm leads with security). */
+function megaCategoryFor(pathname: string): string {
+  const match = megaMenu.find(
+    (category) =>
+      pathname === category.href ||
+      pathname.startsWith(`${category.href}/`) ||
+      category.items.some(
+        (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
+      ),
+  );
+  return match?.id ?? megaMenu[0].id;
 }
 
 function TopLink({ href, label, pathname }: { href: string; label: string; pathname: string }) {
@@ -43,13 +57,24 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [entered, setEntered] = useState(false);
   const [navUi, setNavUi] = useState<NavUiState>(CLOSED_NAV_UI);
+  /* Hovered/focused mega-menu category, keyed by pathname so a client-side
+     navigation falls back to the pathname-derived default. */
+  const [megaOverride, setMegaOverride] = useState<{ path: string; id: string } | null>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
+  const megaPanelRef = useRef<HTMLDivElement>(null);
   const wasMenuOpen = useRef(false);
 
   /* Open states are keyed by pathname: a client-side navigation (including
      back/forward) renders them closed without any state-reset effect. */
   const openDropdown = navUi.path === pathname ? navUi.dropdown : null;
   const menuOpen = navUi.path === pathname && navUi.menuOpen;
+
+  const activeMegaId =
+    megaOverride && megaOverride.path === pathname
+      ? megaOverride.id
+      : megaCategoryFor(pathname);
+  const activeMega =
+    megaMenu.find((category) => category.id === activeMegaId) ?? megaMenu[0];
 
   const updateNavUi = (update: Partial<NavUiState>) =>
     setNavUi((current) => {
@@ -118,6 +143,37 @@ export default function Navbar() {
     updateNavUi({ dropdown: openDropdown === key ? null : key });
   };
 
+  /* Opening the mega menu always starts from the pathname-derived category,
+     whether it is opened by hover or by click/keyboard. */
+  const openMegaMenu = () => {
+    setMegaOverride(null);
+    updateNavUi({ dropdown: "services" });
+  };
+
+  const selectMegaCategory = (id: string) => {
+    setMegaOverride({ path: pathname, id });
+  };
+
+  /* Arrow keys roam focus through every link in the panel, in DOM order
+     (categories first, then the active category's sub-services). */
+  const onMegaKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+    const panel = megaPanelRef.current;
+    if (!panel) return;
+    const links = Array.from(panel.querySelectorAll<HTMLAnchorElement>("a[href]"));
+    if (links.length === 0) return;
+    const currentIndex = links.findIndex((link) => link === document.activeElement);
+    const delta = event.key === "ArrowDown" ? 1 : -1;
+    const nextIndex =
+      currentIndex < 0
+        ? event.key === "ArrowDown"
+          ? 0
+          : links.length - 1
+        : (currentIndex + delta + links.length) % links.length;
+    event.preventDefault();
+    links[nextIndex].focus();
+  };
+
   return (
     <header
       id="navbar"
@@ -142,9 +198,11 @@ export default function Navbar() {
         </Link>
 
         <ul className="nav-links" role="list">
+          <TopLink href="/" label="Home" pathname={pathname} />
+
           <li
-            className={`nav-item has-dropdown${openDropdown === "services" ? " open" : ""}`}
-            onMouseEnter={() => updateNavUi({ dropdown: "services" })}
+            className={`nav-item has-dropdown mega-host${openDropdown === "services" ? " open" : ""}`}
+            onMouseEnter={openMegaMenu}
             onMouseLeave={() => {
               if (openDropdown === "services") closeNavUi();
             }}
@@ -157,22 +215,51 @@ export default function Navbar() {
               aria-current={servicesActive ? "page" : undefined}
               onClick={(event) => {
                 event.stopPropagation();
-                toggleDropdown("services");
+                if (openDropdown === "services") {
+                  toggleDropdown("services");
+                } else {
+                  openMegaMenu();
+                }
               }}
             >
               Services
             </button>
-            <div className="nav-dropdown nav-dropdown-wide" onClick={closeNavUi}>
-              {servicesNav.map((service) => (
-                <Link
-                  key={service.slug}
-                  href={`/services/${service.slug}`}
-                  className="nav-dropdown-link nav-dropdown-link-desc"
-                >
-                  <span className="nav-dropdown-title">{service.label}</span>
-                  <span className="nav-dropdown-desc">{service.desc}</span>
+            <div
+              ref={megaPanelRef}
+              className="nav-dropdown mega-menu"
+              onClick={closeNavUi}
+              onKeyDown={onMegaKeyDown}
+            >
+              <div className="mega-cats">
+                {megaMenu.map((category) => (
+                  <Link
+                    key={category.id}
+                    href={category.href}
+                    className={`mega-cat${activeMegaId === category.id ? " active" : ""}`}
+                    aria-current={pathname === category.href ? "page" : undefined}
+                    onMouseEnter={() => selectMegaCategory(category.id)}
+                    onFocus={() => selectMegaCategory(category.id)}
+                  >
+                    {category.label}
+                  </Link>
+                ))}
+                <Link href="/services" className="mega-all">
+                  View all services →
                 </Link>
-              ))}
+              </div>
+              <div className="mega-items">
+                {activeMega.items.map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className="mega-item"
+                    aria-current={pathname === item.href ? "page" : undefined}
+                  >
+                    <span className="mega-item-label">{item.label}</span>
+                    <span className="mega-item-desc">{item.desc}</span>
+                  </Link>
+                ))}
+              </div>
             </div>
           </li>
 

@@ -127,6 +127,144 @@ export const topNav: NavLinkItem[] = [
   { label: "Contact", href: "/contact" },
 ];
 
+/* ── Services mega-menu (desktop two-column panel + mobile nested accordion) ── */
+
+export type MegaSubItem = { label: string; href: string; desc: string };
+
+export type MegaCategory = {
+  id: string;
+  label: string;
+  href: string;
+  desc: string;
+  items: MegaSubItem[];
+};
+
+export const megaMenu: MegaCategory[] = [
+  {
+    id: "cyber-security",
+    label: "Cybersecurity Services",
+    href: "/services/cyber-security-services",
+    desc: "CREST-accredited offensive testing — find your weaknesses before attackers do.",
+    items: [
+      {
+        label: "Web & API Penetration Test",
+        href: "/services/penetration-testing",
+        desc: "Manual, OWASP-aligned testing of web apps and APIs.",
+      },
+      {
+        label: "API Penetration Testing",
+        href: "/services/api-penetration-testing",
+        desc: "REST & GraphQL testing for auth and business-logic flaws.",
+      },
+      {
+        label: "Mobile Application Testing",
+        href: "/services/mobile-application-testing",
+        desc: "iOS & Android client logic, storage & API paths.",
+      },
+      {
+        label: "Vulnerability Assessment",
+        href: "/services/vulnerability-assessment",
+        desc: "Manually-verified scanning across your whole estate.",
+      },
+      {
+        label: "Threat & Risk Assessment",
+        href: "/services/threat-risk-assessment",
+        desc: "Threat landscape mapped to business impact.",
+      },
+      {
+        label: "Network & Cloud Security Testing",
+        href: "/services/cyber-security-services",
+        desc: "Coverage across network and cloud environments.",
+      },
+      {
+        label: "Compliance-Ready Reporting",
+        href: "/services/cyber-security-services",
+        desc: "ISO 27001, SOC 2 & PCI DSS reports auditors can use.",
+      },
+    ],
+  },
+  {
+    id: "web-app-development",
+    label: "Web & App Development",
+    href: "/services/web-app-development-services",
+    desc: "We build and harden the web and mobile applications that carry your business.",
+    items: [
+      {
+        label: "Web Application Development",
+        href: "/services/web-app-development-services",
+        desc: "React / Next.js builds, secure by design from day one.",
+      },
+      {
+        label: "Mobile App Development",
+        href: "/services/web-app-development-services",
+        desc: "React Native apps with secure coding & peer review.",
+      },
+      {
+        label: "E-commerce Solutions",
+        href: "/services/ecommerce-solutions",
+        desc: "Stores with integrated payments, shipping & reporting.",
+      },
+      {
+        label: "Custom Software Solutions",
+        href: "/services/custom-software-solutions",
+        desc: "Enterprise platforms for MENA's regulated institutions.",
+      },
+      {
+        label: "Secure Architecture & Threat Modelling",
+        href: "/services/web-app-development-services",
+        desc: "Security designed in from day one, not retrofitted.",
+      },
+      {
+        label: "Pre-Launch Security Review",
+        href: "/services/web-app-development-services",
+        desc: "Full security review before go-live.",
+      },
+      {
+        label: "Post-Launch Monitoring & Hardening",
+        href: "/services/web-app-development-services",
+        desc: "Monitoring and iteration as your risk surface evolves.",
+      },
+    ],
+  },
+  {
+    id: "ai-automation",
+    label: "AI Automation",
+    href: "/services/ai-automation-services",
+    desc: "AI-powered workflows that remove friction, without opening a new attack surface.",
+    items: [
+      {
+        label: "Workflow Audit & Automation Mapping",
+        href: "/services/ai-automation-services",
+        desc: "We map your workflow end-to-end before automating it.",
+      },
+      {
+        label: "LLM Integration & Prompt Engineering",
+        href: "/services/ai-automation-services",
+        desc: "LLMs wired into your tools, governed from the start.",
+      },
+      {
+        label: "RAG & AI Agent Pipelines",
+        href: "/services/ai-automation-services",
+        desc: "Custom RAG, agents and internal tool pipelines.",
+      },
+      {
+        label: "Secure Data Pipelines",
+        href: "/services/ai-automation-services",
+        desc: "Secure ingestion, normalisation and storage.",
+      },
+      {
+        label: "AI Governance & Access Controls",
+        href: "/services/ai-automation-services",
+        desc: "Strict data boundaries — your data never trains models.",
+      },
+      {
+        label: "Monitoring, Logging & Iteration",
+        href: "/services/ai-automation-services",
+        desc: "Ongoing monitoring retainers as requirements evolve.",
+      },
+    ],
+  },
+];
 /* ── Footer columns ──────────────────────────────────────────────── */
 
 export const footerServices: NavLinkItem[] = servicesNav.map(({ slug, label }) => ({

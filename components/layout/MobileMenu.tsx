@@ -1,9 +1,9 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { industriesNav, resourcesNav, servicesNav, topNav } from "@/content/site";
+import { industriesNav, megaMenu, resourcesNav, topNav } from "@/content/site";
 
 type MobileMenuProps = {
   open: boolean;
@@ -20,8 +20,15 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
     path: string;
     key: AccordionKey | null;
   }>({ path: "", key: null });
+  /* Nested services category (exclusive within the Services section),
+     keyed by pathname the same way. */
+  const [categoryState, setCategoryState] = useState<{
+    path: string;
+    id: string | null;
+  }>({ path: "", id: null });
 
   const openSubmenu = submenuState.path === pathname ? submenuState.key : null;
+  const openCategory = categoryState.path === pathname ? categoryState.id : null;
 
   useEffect(() => {
     if (!open) return;
@@ -33,7 +40,15 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
   }, [open]);
 
   const toggleSubmenu = (key: AccordionKey) => {
+    /* Reopening Services starts from a collapsed nested state. */
+    if (key === "services" && openSubmenu !== "services") {
+      setCategoryState({ path: pathname, id: null });
+    }
     setSubmenuState({ path: pathname, key: openSubmenu === key ? null : key });
+  };
+
+  const toggleCategory = (id: string) => {
+    setCategoryState({ path: pathname, id: openCategory === id ? null : id });
   };
 
   const isActive = (href: string) => pathname === href;
@@ -41,6 +56,17 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
   return (
     <div className={`mobile-menu${open ? " open" : ""}`} id="mobile-menu">
       <ul role="list">
+        <li>
+          <Link
+            href="/"
+            className={isActive("/") ? "active" : undefined}
+            aria-current={isActive("/") ? "page" : undefined}
+            onClick={onClose}
+          >
+            Home
+          </Link>
+        </li>
+
         <li
           className={`mobile-nav-item has-children${openSubmenu === "services" ? " open" : ""}`}
         >
@@ -55,19 +81,55 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
             <span className="mobile-nav-caret">+</span>
           </button>
           <ul className="mobile-submenu" id="mobile-submenu-services">
-            {servicesNav.map((service) => {
-              const href = `/services/${service.slug}`;
-              const active = isActive(href);
+            {megaMenu.map((category) => {
+              const categoryActive = isActive(category.href);
               return (
-                <li key={service.slug}>
-                  <Link
-                    href={href}
-                    className={active ? "active" : undefined}
-                    aria-current={active ? "page" : undefined}
-                    onClick={onClose}
+                <li
+                  key={category.id}
+                  className={`mobile-cat${openCategory === category.id ? " open" : ""}`}
+                >
+                  <div className="mobile-cat-row">
+                    <Link
+                      href={category.href}
+                      className={categoryActive ? "active" : undefined}
+                      aria-current={categoryActive ? "page" : undefined}
+                      onClick={onClose}
+                    >
+                      {category.label}
+                    </Link>
+                    <button
+                      type="button"
+                      className="mobile-cat-toggle"
+                      aria-expanded={openCategory === category.id}
+                      aria-controls={`mobile-cat-list-${category.id}`}
+                      aria-label={`Show ${category.label} services`}
+                      onClick={() => toggleCategory(category.id)}
+                    >
+                      <span className="mobile-cat-caret" aria-hidden="true">
+                        +
+                      </span>
+                    </button>
+                  </div>
+                  <ul
+                    className="mobile-submenu mobile-cat-list"
+                    id={`mobile-cat-list-${category.id}`}
                   >
-                    {service.label}
-                  </Link>
+                    {category.items.map((item) => {
+                      const active = isActive(item.href);
+                      return (
+                        <li key={item.label}>
+                          <Link
+                            href={item.href}
+                            className={active ? "active" : undefined}
+                            aria-current={active ? "page" : undefined}
+                            onClick={onClose}
+                          >
+                            {item.label}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </li>
               );
             })}
@@ -107,6 +169,22 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
           </ul>
         </li>
 
+        {topNav.slice(0, 2).map((link) => {
+          const active = isActive(link.href);
+          return (
+            <li key={link.href}>
+              <Link
+                href={link.href}
+                className={active ? "active" : undefined}
+                aria-current={active ? "page" : undefined}
+                onClick={onClose}
+              >
+                {link.label}
+              </Link>
+            </li>
+          );
+        })}
+
         <li
           className={`mobile-nav-item has-children${openSubmenu === "resources" ? " open" : ""}`}
         >
@@ -140,7 +218,7 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
           </ul>
         </li>
 
-        {topNav.map((link) => {
+        {topNav.slice(2).map((link) => {
           const active = isActive(link.href);
           return (
             <li key={link.href}>
