@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CYBEROCO Technologies — Marketing Site
 
-## Getting Started
+Marketing website for CYBEROCO Technologies (cyberoco.tech), migrated from a static
+HTML site to **Next.js 16** (App Router). ~40 routes covering services, industries,
+work, case studies, blog, research and resources, plus a contact form with email
+delivery via Resend.
 
-First, run the development server:
+## Stack
+
+| Layer          | Technology                                                                 |
+| -------------- | -------------------------------------------------------------------------- |
+| Framework      | Next.js 16 (App Router, Turbopack)                                         |
+| UI             | React 19, TypeScript                                                       |
+| Styling        | Tailwind CSS v4 + ported legacy design system (`app/globals.css`)          |
+| Motion         | GSAP + ScrollTrigger, Framer Motion (`motion`) — see `docs/MOTION.md`      |
+| Forms          | react-hook-form + zod                                                      |
+| Email          | Resend (`app/api/contact/`)                                                |
+| Design system  | `docs/DESIGN-SYSTEM.md`                                                    |
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
+npm run build    # production build (Turbopack)
+npm run start    # serve the production build
+npm run lint     # ESLint (eslint-config-next)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+> **React Grab (dev only):** the dev server loads [React Grab](https://react-grab.dev)
+> (`app/layout.tsx`, guarded by `NODE_ENV === "development"`). Press its shortcut in
+> the browser to grab/copy UI elements as code for coding agents. It was added via
+> `npx grab@latest init` and is never included in production builds.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy `.env.example` to `.env.local` and fill in as needed:
 
-## Learn More
+```bash
+NEXT_PUBLIC_SITE_URL=https://www.cyberoco.tech
+RESEND_API_KEY=
+CONTACT_TO=info@cyberoco.tech
+CONTACT_FROM=CYBEROCO Website <onboarding@resend.dev>
+```
 
-To learn more about Next.js, take a look at the following resources:
+- `RESEND_API_KEY` — required for real email delivery. **Without it**, the contact
+  API logs submissions server-side and still returns success **in development**;
+  a production deploy missing the key returns 500 (fails loudly, never silently
+  drops enquiries).
+- `NEXT_PUBLIC_SITE_URL` — canonical site URL used by metadata, `sitemap.xml`
+  and `robots.txt`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+app/                    # All routes (App Router): services/, industries/, work/,
+                        # blog/, case-studies/, research/, publications/,
+                        # media-coverage/, careers/, contact/, ct-signals/,
+                        # resources/, api/contact/, sitemap.ts, robots.ts, manifest.ts
+components/layout/      # Shared chrome: Navbar, Footer, MobileMenu, SkipLink
+components/motion/      # Motion system: Reveal, HeroTimeline, Marquee, PageFade,
+                        # CustomCursor (see docs/MOTION.md)
+content/site.ts         # Single source of truth for nav, footer, routes, org data
+lib/                    # gsap setup, motion tokens, contact form schema (zod)
+docs/                   # CONVENTIONS.md · MOTION.md · DESIGN-SYSTEM.md
+proxy.ts                # Middleware: legacy URL redirects (see below)
+public/images/          # Static assets (logo, project images, accreditation SVGs)
+```
 
-## Deploy on Vercel
+## Legacy URL handling
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The previous site was static HTML with `.html` filenames and a misspelled
+`/resourses/` folder. `proxy.ts` (middleware) permanently redirects (308):
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `/*.html` → clean path without the extension (e.g. `/blog.html` → `/blog`)
+- `/index.html` → `/`
+- `/resourses/*` → `/resources/*` (composes with the `.html` rule in one hop)
+
+## Known TODOs
+
+- **Hero video** — self-host the hero background video at `public/video/hero.mp4`
+  (noted in `app/page.tsx`).
+- **Work-page thumbnails** — 5 of 6 projects on `/work` (versa-finance,
+  nova-health, pulse-ai, forma-studio, koto-arch) render a styled placeholder;
+  source real project imagery (noted in `app/work/WorkGrid.tsx`).
+- **CSP** — unsafe-inline remains (Next hydration requires it); unsafe-eval now
+  dev-only; nonce-based tightening is a future hardening step.
+- **Overflow line-masks** — add overflow line-masks to non-home hero line
+  reveals (`Reveal variant="lines"` outside the home hero slides+fades
+  unmasked — acceptable, polish later).
+- **CI/CD pipeline** — no pipeline configured yet; add lint/typecheck/build on PR.
+
+## Deployment
+
+Vercel-ready (`next start` also works anywhere Node 20+ is available):
+
+1. Import the repo into Vercel — no custom build settings required.
+2. Set the environment variables from `.env.example` (at minimum
+   `NEXT_PUBLIC_SITE_URL` with the production domain, plus `RESEND_API_KEY` for
+   live contact-form email).
+3. Security headers (CSP, HSTS, X-Frame-Options, etc.) are pre-configured in
+   `next.config.ts`.
+
+**Rate limiting note:** the contact API's rate limiter uses the rightmost
+`x-forwarded-for` entry — valid when deployed behind a trusted proxy that
+appends client IPs (Vercel overwrites the header); for other topologies
+consider `@upstash/ratelimit` (the in-memory limiter is per-instance on
+serverless).
