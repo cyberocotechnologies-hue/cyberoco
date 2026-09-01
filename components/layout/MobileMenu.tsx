@@ -75,7 +75,10 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
             className="mobile-nav-toggle"
             aria-expanded={openSubmenu === "services"}
             aria-controls="mobile-submenu-services"
-            onClick={() => toggleSubmenu("services")}
+            onClick={(event) => {
+              event.stopPropagation();
+              toggleSubmenu("services");
+            }}
           >
             <span>Services</span>
             <span className="mobile-nav-caret">+</span>
@@ -103,7 +106,10 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
                       aria-expanded={openCategory === category.id}
                       aria-controls={`mobile-cat-list-${category.id}`}
                       aria-label={`Show ${category.label} services`}
-                      onClick={() => toggleCategory(category.id)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        toggleCategory(category.id);
+                      }}
                     >
                       <span className="mobile-cat-caret" aria-hidden="true">
                         +
@@ -144,7 +150,10 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
             className="mobile-nav-toggle"
             aria-expanded={openSubmenu === "industries"}
             aria-controls="mobile-submenu-industries"
-            onClick={() => toggleSubmenu("industries")}
+            onClick={(event) => {
+              event.stopPropagation();
+              toggleSubmenu("industries");
+            }}
           >
             <span>Industries</span>
             <span className="mobile-nav-caret">+</span>
@@ -193,7 +202,10 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
             className="mobile-nav-toggle"
             aria-expanded={openSubmenu === "resources"}
             aria-controls="mobile-submenu-resources"
-            onClick={() => toggleSubmenu("resources")}
+            onClick={(event) => {
+              event.stopPropagation();
+              toggleSubmenu("resources");
+            }}
           >
             <span>Resources</span>
             <span className="mobile-nav-caret">+</span>

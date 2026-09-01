@@ -222,7 +222,7 @@ export default function ServicesPage() {
                 </Reveal>
               </div>
               <Link
-                href="/services/web-app-development-services"
+                href="/services/web-application-development"
                 className="btn-outline"
                 style={{ alignSelf: "flex-start", marginTop: "0.5rem" }}
               >

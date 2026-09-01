@@ -79,8 +79,8 @@ export const servicesNav: SlugNavItem[] = [
     desc: "Secure, governed AI workflows — LLM integration, pipelines and monitoring.",
   },
   {
-    slug: "web-app-development-services",
-    label: "Web & App Development Services",
+    slug: "web-application-development",
+    label: "Web & App Development",
     desc: "Secure-by-design web and mobile apps, built alongside our security consultants.",
   },
   {
@@ -186,17 +186,17 @@ export const megaMenu: MegaCategory[] = [
   {
     id: "web-app-development",
     label: "Web & App Development",
-    href: "/services/web-app-development-services",
+    href: "/services/web-application-development",
     desc: "We build and harden the web and mobile applications that carry your business.",
     items: [
       {
         label: "Web Application Development",
-        href: "/services/web-app-development-services",
+        href: "/services/web-application-development#web-application-development",
         desc: "React / Next.js builds, secure by design from day one.",
       },
       {
         label: "Mobile App Development",
-        href: "/services/web-app-development-services",
+        href: "/services/web-application-development#mobile-app-development",
         desc: "React Native apps with secure coding & peer review.",
       },
       {
@@ -211,17 +211,17 @@ export const megaMenu: MegaCategory[] = [
       },
       {
         label: "Secure Architecture & Threat Modelling",
-        href: "/services/web-app-development-services",
+        href: "/services/web-application-development#secure-architecture-threat-modelling",
         desc: "Security designed in from day one, not retrofitted.",
       },
       {
         label: "Pre-Launch Security Review",
-        href: "/services/web-app-development-services",
+        href: "/services/web-application-development#pre-launch-security-review",
         desc: "Full security review before go-live.",
       },
       {
         label: "Post-Launch Monitoring & Hardening",
-        href: "/services/web-app-development-services",
+        href: "/services/web-application-development#post-launch-monitoring-hardening",
         desc: "Monitoring and iteration as your risk surface evolves.",
       },
     ],

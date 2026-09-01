@@ -2,12 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Reveal from "@/components/motion/Reveal";
 import Marquee from "@/components/motion/Marquee";
+import { site } from "@/content/site";
 
 export const metadata: Metadata = {
   title: "Web & App Development Services",
   description:
-    "Secure-by-design web and mobile app development from CYBEROCO, built alongside our security consultants.",
-  alternates: { canonical: "/services/web-app-development-services" },
+    "React and Next.js web apps, mobile builds, e-commerce and custom software — developed secure by design by CYBEROCO's engineers and security consultants.",
+  alternates: { canonical: "/services/web-application-development" },
+  openGraph: {
+    title: "Web & App Development Services",
+    description:
+      "React and Next.js web apps, mobile builds, e-commerce and custom software — developed secure by design by CYBEROCO's engineers and security consultants.",
+    type: "website",
+  },
 };
 
 const MARQUEE_ITEMS = [
@@ -17,6 +24,51 @@ const MARQUEE_ITEMS = [
   "Secure Architecture",
   "Performance",
   "Accessibility",
+];
+
+const SUB_SERVICES = [
+  {
+    id: "web-application-development",
+    title: "Web Application Development",
+    lead: "React / Next.js builds, secure by design from day one.",
+    body: "We design and build modern web applications in React and Next.js, with authentication, authorisation and data-handling designed in from the start rather than bolted on afterwards. Secure coding practices and peer code review run through every build, alongside performance and accessibility engineering. The result is a product that ships fast without carrying known weaknesses baked in.",
+  },
+  {
+    id: "mobile-app-development",
+    title: "Mobile App Development",
+    lead: "React Native apps with secure coding & peer review.",
+    body: "We build mobile applications with React Native and apply the same security discipline we bring to our web builds. Client logic, on-device storage and API paths are treated as part of the application's security boundary, not an afterthought, and every release goes through peer review before it ships.",
+  },
+  {
+    id: "ecommerce-solutions",
+    title: "E-commerce Solutions",
+    lead: "Stores with integrated payments, shipping & reporting.",
+    body: "We build online stores with integrated payments, shipping and order management on the same secure foundation as the rest of our application work. Payment flows and customer data handling are designed to the standards we test against when we are on the other side of an engagement, so the store you launch is defensible by design.",
+  },
+  {
+    id: "custom-software-solutions",
+    title: "Custom Software Solutions",
+    lead: "Enterprise platforms for MENA's regulated institutions.",
+    body: "We design and build enterprise platforms, backend systems and compliance infrastructure for regulated institutions across MENA. Where a codebase already exists, we start with an audit to understand what is there, then harden and rebuild incrementally rather than attempting a risky full rewrite. Internal tools and client portals sit just as comfortably in scope as customer-facing platforms.",
+  },
+  {
+    id: "secure-architecture-threat-modelling",
+    title: "Secure Architecture & Threat Modelling",
+    lead: "Security designed in from day one, not retrofitted.",
+    body: "Before a single line of code is written, we map what you are building and what could go wrong with it. That threat modelling shapes the architecture — authentication, authorisation and data-handling decisions are made with the threats in view. Security checkpoints then run at each stage of the build, not as a single audit at the end.",
+  },
+  {
+    id: "pre-launch-security-review",
+    title: "Pre-Launch Security Review",
+    lead: "Full security review before go-live.",
+    body: "Every build finishes with a full security review before go-live, so nothing new ships with known weaknesses. Where deeper coverage is wanted, it pairs naturally with a penetration test through our Cyber Security Services — many clients do exactly that before launch.",
+  },
+  {
+    id: "post-launch-monitoring-hardening",
+    title: "Post-Launch Monitoring & Hardening",
+    lead: "Monitoring and iteration as your risk surface evolves.",
+    body: "We stay engaged after go-live, monitoring and iterating as your product — and its risk surface — evolves. That covers keeping dependencies and configuration in check, and hardening the areas where risk moves as the application grows. Builds do not stand still, and neither does the work of keeping them secure.",
+  },
 ];
 
 const FAQ_JSON_LD = {
@@ -58,7 +110,22 @@ const FAQ_JSON_LD = {
   ],
 };
 
-export default function WebAppDevelopmentServicesPage() {
+const SERVICE_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  name: "Web & App Development Services",
+  description:
+    "Secure-by-design web and mobile application development from CYBEROCO: React and Next.js web applications, React Native mobile apps, e-commerce solutions and custom software, with threat modelling, pre-launch security review and post-launch hardening built into the engagement.",
+  provider: {
+    "@type": "Organization",
+    name: "CYBEROCO",
+    url: site.url,
+  },
+  areaServed: "Middle East and North Africa (MENA)",
+  serviceType: "Web & App Development",
+};
+
+export default function WebApplicationDevelopmentPage() {
   return (
     <>
       <section
@@ -162,6 +229,28 @@ export default function WebAppDevelopmentServicesPage() {
       </section>
 
       <Marquee items={MARQUEE_ITEMS} speed={24} />
+
+      {SUB_SERVICES.map((service, index) => (
+        <section
+          key={service.id}
+          id={service.id}
+          className={index % 2 === 1 ? "section bg-gray-light" : "section"}
+        >
+          <div className="max-w-3xl">
+            <Reveal
+              variant="fadeUp"
+              start="top 85%"
+              className="flex flex-col gap-5"
+            >
+              <h2 className="text-headline">{service.title}</h2>
+              <p className="text-subheading leading-relaxed c-gray-333">
+                {service.lead}
+              </p>
+              <p className="text-sm leading-relaxed c-gray-555">{service.body}</p>
+            </Reveal>
+          </div>
+        </section>
+      ))}
 
       <section className="section">
         <p className="text-label c-gray-999 mb-12">Our approach</p>
@@ -268,6 +357,10 @@ export default function WebAppDevelopmentServicesPage() {
         </div>
       </section>
 
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(SERVICE_JSON_LD) }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_JSON_LD) }}

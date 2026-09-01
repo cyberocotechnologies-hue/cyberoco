@@ -49,7 +49,7 @@ const CERTIFICATIONS = [
 
 const HOME_SERVICES = [
   { num: "01", slug: "cyber-security-services", heading: "Cyber Security Solutions" },
-  { num: "02", slug: "web-app-development-services", heading: "Web & App Development Solutions" },
+  { num: "02", slug: "web-application-development", heading: "Web & App Development Solutions" },
   { num: "03", slug: "ai-automation-services", heading: "AI Automation Solutions" },
   { num: "04", slug: "custom-software-solutions", heading: "Custom Software Solutions" },
   { num: "05", slug: "ecommerce-solutions", heading: "e-Commerce Solutions" },
@@ -242,7 +242,7 @@ export default function HomePage() {
             </p>
             <span className="engagement-arrow">→</span>
           </Link>
-          <Link href="/services/web-app-development-services" className="engagement-item">
+          <Link href="/services/web-application-development" className="engagement-item">
             <h3>Web App Development</h3>
             <p>
               Secure, performant web applications built and hardened from the ground

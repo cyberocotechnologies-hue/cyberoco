@@ -9,12 +9,25 @@
  * 1. `/index.html`            -> `/`
  * 2. `*.html`                 -> same path without the extension
  * 3. `/resourses/*`           -> `/resources/*`  (misspelled legacy folder)
+ * 4. `/services/web-app-development-services`
+ *                            -> `/services/web-application-development`
+ *                               (renamed service slug; matches the path with
+ *                               or without a trailing slash)
  *
  * Rules compose in a single hop: `/resourses/sample-pentest-report.html`
- * redirects straight to `/resources/sample-pentest-report`.
+ * redirects straight to `/resources/sample-pentest-report`, and
+ * `/services/web-app-development-services.html` straight to
+ * `/services/web-application-development`.
  */
 
 const PERMANENT = 308;
+
+// Renamed service routes. Keyed on the path with any trailing slash stripped,
+// checked AFTER `.html` stripping so both the bare path and the `.html`
+// variant redirect in one hop.
+const LEGACY_SERVICE_PATHS: Record<string, string> = {
+  "/services/web-app-development-services": "/services/web-application-development",
+};
 
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
@@ -35,6 +48,12 @@ export function proxy(request: NextRequest) {
     changed = true;
   }
 
+  const legacyTarget = LEGACY_SERVICE_PATHS[target.replace(/\/+$/, "")];
+  if (legacyTarget) {
+    target = legacyTarget;
+    changed = true;
+  }
+
   if (!changed) return NextResponse.next();
 
   // Open-redirect guard: the redirect target must stay a same-origin path —
@@ -50,6 +69,7 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   // Everything except Next internals and the API; the handler above only acts
-  // on /resourses and *.html paths, all other requests pass through untouched.
+  // on /resourses, *.html paths and renamed service slugs, all other requests
+  // pass through untouched.
   matcher: ["/((?!_next|api).*)"],
 };

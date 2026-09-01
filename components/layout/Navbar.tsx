@@ -24,7 +24,7 @@ function sectionActive(prefixes: string[], pathname: string): boolean {
 }
 
 /* Default mega-menu category: the one covering the current page, else the
-   first (Cybersecurity — a security firm leads with security). */
+   first (Cybersecurity â€” a security firm leads with security). */
 function megaCategoryFor(pathname: string): string {
   const match = megaMenu.find(
     (category) =>
@@ -244,7 +244,7 @@ export default function Navbar() {
                   </Link>
                 ))}
                 <Link href="/services" className="mega-all">
-                  View all services →
+                  View all services â†’
                 </Link>
               </div>
               <div className="mega-items">
@@ -351,7 +351,10 @@ export default function Navbar() {
           aria-label={menuOpen ? "Close menu" : "Open menu"}
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
-          onClick={() => updateNavUi({ menuOpen: !menuOpen })}
+          onClick={(event) => {
+            event.stopPropagation();
+            updateNavUi({ menuOpen: !menuOpen });
+          }}
         >
           <span />
           <span />

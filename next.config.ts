@@ -32,6 +32,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Canonical URL schema: trailing slashes (https://www.cyberoco.tech/services/[service-name]/).
+  // Next 308-redirects non-slash requests automatically.
+  trailingSlash: true,
   async headers() {
     return [
       {

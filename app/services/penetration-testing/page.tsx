@@ -482,7 +482,7 @@ export default function PenetrationTestingPage() {
             <span className="engagement-arrow">→</span>
           </Link>
           <Link
-            href="/services/web-app-development-services"
+            href="/services/web-application-development"
             className="engagement-item"
           >
             <h3>Secure Code Review</h3>
