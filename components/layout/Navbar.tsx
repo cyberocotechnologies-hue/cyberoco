@@ -62,6 +62,8 @@ export default function Navbar() {
   const [megaOverride, setMegaOverride] = useState<{ path: string; id: string } | null>(null);
   const hamburgerRef = useRef<HTMLButtonElement>(null);
   const megaPanelRef = useRef<HTMLDivElement>(null);
+  const navbarRef = useRef<HTMLElement>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wasMenuOpen = useRef(false);
 
   /* Open states are keyed by pathname: a client-side navigation (including
@@ -82,7 +84,24 @@ export default function Navbar() {
       return { ...base, ...update, path: pathname };
     });
 
+  const cancelDropdownClose = () => {
+    if (closeTimerRef.current !== null) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+
   const closeNavUi = () => setNavUi(CLOSED_NAV_UI);
+
+  const scheduleDropdownClose = () => {
+    cancelDropdownClose();
+    closeTimerRef.current = setTimeout(() => closeNavUi(), 280);
+  };
+
+  const closeNavUiNow = () => {
+    cancelDropdownClose();
+    closeNavUi();
+  };
 
   /* The ported CSS keeps .navbar at opacity 0 until something reveals it
      (the old build used GSAP). Reveal once mounted with a plain CSS
@@ -107,7 +126,10 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const onDocumentClick = () => closeNavUi();
+    const onDocumentClick = (event: MouseEvent) => {
+      if (navbarRef.current?.contains(event.target as Node)) return;
+      closeNavUi();
+    };
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") closeNavUi();
     };
@@ -116,6 +138,7 @@ export default function Navbar() {
     return () => {
       document.removeEventListener("click", onDocumentClick);
       document.removeEventListener("keydown", onKeyDown);
+      cancelDropdownClose();
     };
   }, []);
 
@@ -140,12 +163,14 @@ export default function Navbar() {
   const resourcesActive = sectionActive(resourceSectionPrefixes, pathname);
 
   const toggleDropdown = (key: DropdownKey) => {
+    cancelDropdownClose();
     updateNavUi({ dropdown: openDropdown === key ? null : key });
   };
 
   /* Opening the mega menu always starts from the pathname-derived category,
      whether it is opened by hover or by click/keyboard. */
   const openMegaMenu = () => {
+    cancelDropdownClose();
     setMegaOverride(null);
     updateNavUi({ dropdown: "services" });
   };
@@ -176,6 +201,7 @@ export default function Navbar() {
 
   return (
     <header
+      ref={navbarRef}
       id="navbar"
       className={`navbar${scrolled ? " scrolled" : ""}`}
       style={{
@@ -204,7 +230,7 @@ export default function Navbar() {
             className={`nav-item has-dropdown mega-host${openDropdown === "services" ? " open" : ""}`}
             onMouseEnter={openMegaMenu}
             onMouseLeave={() => {
-              if (openDropdown === "services") closeNavUi();
+              if (openDropdown === "services") scheduleDropdownClose();
             }}
           >
             <button
@@ -227,7 +253,7 @@ export default function Navbar() {
             <div
               ref={megaPanelRef}
               className="nav-dropdown mega-menu"
-              onClick={closeNavUi}
+              onClick={closeNavUiNow}
               onKeyDown={onMegaKeyDown}
             >
               <div className="mega-cats">
@@ -265,9 +291,12 @@ export default function Navbar() {
 
           <li
             className={`nav-item has-dropdown${openDropdown === "industries" ? " open" : ""}`}
-            onMouseEnter={() => updateNavUi({ dropdown: "industries" })}
+            onMouseEnter={() => {
+              cancelDropdownClose();
+              updateNavUi({ dropdown: "industries" });
+            }}
             onMouseLeave={() => {
-              if (openDropdown === "industries") closeNavUi();
+              if (openDropdown === "industries") scheduleDropdownClose();
             }}
           >
             <button
@@ -283,7 +312,7 @@ export default function Navbar() {
             >
               Industries
             </button>
-            <div className="nav-dropdown nav-dropdown-wide" onClick={closeNavUi}>
+            <div className="nav-dropdown nav-dropdown-wide" onClick={closeNavUiNow}>
               {industriesNav.map((industry) => (
                 <Link
                   key={industry.slug}
@@ -302,9 +331,12 @@ export default function Navbar() {
 
           <li
             className={`nav-item has-dropdown${openDropdown === "resources" ? " open" : ""}`}
-            onMouseEnter={() => updateNavUi({ dropdown: "resources" })}
+            onMouseEnter={() => {
+              cancelDropdownClose();
+              updateNavUi({ dropdown: "resources" });
+            }}
             onMouseLeave={() => {
-              if (openDropdown === "resources") closeNavUi();
+              if (openDropdown === "resources") scheduleDropdownClose();
             }}
           >
             <button
@@ -320,7 +352,7 @@ export default function Navbar() {
             >
               Resources
             </button>
-            <div className="nav-dropdown nav-dropdown-wide" onClick={closeNavUi}>
+            <div className="nav-dropdown nav-dropdown-wide" onClick={closeNavUiNow}>
               {resourcesNav.map((resource) => (
                 <Link
                   key={resource.href}

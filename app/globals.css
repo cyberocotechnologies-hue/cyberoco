@@ -546,9 +546,9 @@ img { max-width: 100%; display: block; }
   content: "";
   position: absolute;
   top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 26rem;
+  left: 0;
+  right: 0;
+  width: auto;
   height: 1.6rem;
 }
 
@@ -644,10 +644,6 @@ img { max-width: 100%; display: block; }
 @media (max-width: 767px) {
   .mega-menu { display: none; }
 }
-
-/* Widen the hover bridge to match the mega panel so diagonal pointer travel
-   into the panel's far edges never leaves the hoverable li. */
-.nav-item.has-dropdown.mega-host::after { width: 43rem; }
 
 .mega-cats {
   display: flex;
