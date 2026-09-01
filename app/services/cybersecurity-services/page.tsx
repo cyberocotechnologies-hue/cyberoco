@@ -2,12 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Reveal from "@/components/motion/Reveal";
 import Marquee from "@/components/motion/Marquee";
+import { site } from "@/content/site";
 
 export const metadata: Metadata = {
   title: "Cyber Security Services",
   description:
-    "CREST-accredited penetration testing, vulnerability assessments and risk assessments from CYBEROCO.",
-  alternates: { canonical: "/services/cyber-security-services" },
+    "CREST-accredited penetration testing, vulnerability and risk assessments from CYBEROCO — manual, OWASP-aligned testing with compliance-ready reporting.",
+  alternates: { canonical: "/services/cybersecurity-services" },
+  openGraph: {
+    title: "Cyber Security Services",
+    description:
+      "CREST-accredited penetration testing, vulnerability and risk assessments from CYBEROCO — manual, OWASP-aligned testing with compliance-ready reporting.",
+    type: "website",
+  },
 };
 
 const MARQUEE_ITEMS = [
@@ -58,7 +65,67 @@ const FAQ_JSON_LD = {
   ],
 };
 
-export default function CyberSecurityServicesPage() {
+const SUB_SERVICES = [
+  {
+    id: "web-api-penetration-test",
+    title: "Web & API Penetration Test",
+    lead: "Manual, OWASP-aligned testing of web apps and APIs.",
+    body: "Manual, methodology-led testing of your web application and the APIs behind it, mapped to the OWASP Top 10 and OWASP API Top 10. Our consultants test manually against your specific environment — not just running a scanner and packaging the output — and critical and high findings are retested at no extra cost. The result is a report that reflects where you actually stand.",
+  },
+  {
+    id: "api-penetration-testing",
+    title: "API Penetration Testing",
+    lead: "REST & GraphQL testing for auth and business-logic flaws.",
+    body: "Focused testing of REST, GraphQL and internal APIs for authentication, authorisation and business-logic flaws. Coverage is mapped to the OWASP API Top 10, so the flaws that matter in modern APIs are examined systematically rather than left to a scanner. Findings are risk-rated by real business impact, with remediation guidance your engineering team can act on immediately.",
+  },
+  {
+    id: "mobile-application-testing",
+    title: "Mobile Application Testing",
+    lead: "iOS & Android client logic, storage & API paths.",
+    body: "iOS and Android testing covering client logic, local storage, API communication and platform-specific attack paths. The same manual, methodology-driven discipline we apply to web and API engagements applies here. Testing windows and rules of engagement are agreed with you upfront, so anything disruptive is scheduled and communicated in advance.",
+  },
+  {
+    id: "vulnerability-assessment-services",
+    title: "Vulnerability Assessment",
+    lead: "Manually-verified scanning across your whole estate.",
+    body: "Broad, automated and manually-verified scanning across your estate to surface and prioritise exploitable weaknesses. A scan alone flags potential issues — manual validation confirms what's real, what's exploitable, and what's just noise. It's the practical way to get wide coverage ahead of a compliance audit or an enterprise procurement review.",
+  },
+  {
+    id: "threat-risk-assessment",
+    title: "Threat & Risk Assessment",
+    lead: "Threat landscape mapped to business impact.",
+    body: "A structured evaluation of your threat landscape, mapped to business impact, to guide where security investment goes next. We start from your architecture and regulatory obligations, then identify, prioritise and treat the risks that matter. The output is written to be acted on — by your board, your engineers and your auditors.",
+  },
+  {
+    id: "network-cloud-security-testing",
+    title: "Network & Cloud Security Testing",
+    lead: "Coverage across network and cloud environments.",
+    body: "Coverage across network and cloud environments, delivered with the same manual, methodology-driven approach as our application testing. Scope is shaped by your architecture and regulatory obligations from the scoping call, not by a generic checklist. Findings land in the same risk-rated report, so infrastructure and application issues can be prioritised together.",
+  },
+  {
+    id: "compliance-ready-reporting",
+    title: "Compliance-Ready Reporting",
+    lead: "ISO 27001, SOC 2 & PCI DSS reports auditors can use.",
+    body: "Every engagement produces a report your auditors, your board and your engineering team can all actually use, with reporting mapped to ISO 27001, SOC 2 and PCI DSS. Findings are risk-rated by real business impact with clear remediation guidance, and a debrief call walks your engineering team through the results. Tell us your audit or renewal date during scoping and we'll build the engagement and reporting timeline around it.",
+  },
+];
+
+const SERVICE_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  name: "Cyber Security Services",
+  description:
+    "Offensive security testing from CYBEROCO: CREST-accredited web and API penetration testing, mobile application testing, vulnerability and threat & risk assessments, network and cloud security testing, and compliance-ready reporting mapped to ISO 27001, SOC 2 and PCI DSS.",
+  provider: {
+    "@type": "Organization",
+    name: "CYBEROCO",
+    url: site.url,
+  },
+  areaServed: "Middle East and North Africa (MENA)",
+  serviceType: "Cybersecurity Services",
+};
+
+export default function CybersecurityServicesPage() {
   return (
     <>
       <section
@@ -232,6 +299,28 @@ export default function CyberSecurityServicesPage() {
         </Reveal>
       </section>
 
+      {SUB_SERVICES.map((service, index) => (
+        <section
+          key={service.id}
+          id={service.id}
+          className={index % 2 === 1 ? "section bg-gray-light" : "section"}
+        >
+          <div className="max-w-3xl">
+            <Reveal
+              variant="fadeUp"
+              start="top 85%"
+              className="flex flex-col gap-5"
+            >
+              <h2 className="text-headline">{service.title}</h2>
+              <p className="text-subheading leading-relaxed c-gray-333">
+                {service.lead}
+              </p>
+              <p className="text-sm leading-relaxed c-gray-555">{service.body}</p>
+            </Reveal>
+          </div>
+        </section>
+      ))}
+
       <section className="section bg-gray-light">
         <p className="text-label c-gray-999 mb-12">Our approach</p>
         <div style={{ maxWidth: "40rem" }}>
@@ -339,6 +428,10 @@ export default function CyberSecurityServicesPage() {
         </div>
       </section>
 
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(SERVICE_JSON_LD) }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_JSON_LD) }}

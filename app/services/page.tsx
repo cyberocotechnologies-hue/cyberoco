@@ -150,7 +150,7 @@ export default function ServicesPage() {
                 </Reveal>
               </div>
               <Link
-                href="/services/cyber-security-services"
+                href="/services/cybersecurity-services"
                 className="btn-outline"
                 style={{ alignSelf: "flex-start", marginTop: "0.5rem" }}
               >
@@ -294,7 +294,7 @@ export default function ServicesPage() {
                 </Reveal>
               </div>
               <Link
-                href="/services/ai-automation-services"
+                href="/services/ai-automation"
                 className="btn-outline"
                 style={{ alignSelf: "flex-start", marginTop: "0.5rem" }}
               >

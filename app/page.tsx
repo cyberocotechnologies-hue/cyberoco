@@ -48,9 +48,9 @@ const CERTIFICATIONS = [
 ];
 
 const HOME_SERVICES = [
-  { num: "01", slug: "cyber-security-services", heading: "Cyber Security Solutions" },
+  { num: "01", slug: "cybersecurity-services", heading: "Cyber Security Solutions" },
   { num: "02", slug: "web-application-development", heading: "Web & App Development Solutions" },
-  { num: "03", slug: "ai-automation-services", heading: "AI Automation Solutions" },
+  { num: "03", slug: "ai-automation", heading: "AI Automation Solutions" },
   { num: "04", slug: "custom-software-solutions", heading: "Custom Software Solutions" },
   { num: "05", slug: "ecommerce-solutions", heading: "e-Commerce Solutions" },
 ];
@@ -250,7 +250,7 @@ export default function HomePage() {
             </p>
             <span className="engagement-arrow">→</span>
           </Link>
-          <Link href="/services/ai-automation-services" className="engagement-item">
+          <Link href="/services/ai-automation" className="engagement-item">
             <h3>AI Automation</h3>
             <p>
               Workflow and process automation powered by AI, deployed with the same

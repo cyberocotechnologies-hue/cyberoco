@@ -69,12 +69,12 @@ export const servicesNav: SlugNavItem[] = [
     desc: "iOS and Android testing to OWASP MASVS/MASTG, from binary to API backend.",
   },
   {
-    slug: "cyber-security-services",
+    slug: "cybersecurity-services",
     label: "Cyber Security Services",
     desc: "CREST-accredited penetration testing, vulnerability and risk assessments.",
   },
   {
-    slug: "ai-automation-services",
+    slug: "ai-automation",
     label: "AI Automation Services",
     desc: "Secure, governed AI workflows — LLM integration, pipelines and monitoring.",
   },
@@ -143,7 +143,7 @@ export const megaMenu: MegaCategory[] = [
   {
     id: "cyber-security",
     label: "Cybersecurity Services",
-    href: "/services/cyber-security-services",
+    href: "/services/cybersecurity-services",
     desc: "CREST-accredited offensive testing — find your weaknesses before attackers do.",
     items: [
       {
@@ -173,12 +173,12 @@ export const megaMenu: MegaCategory[] = [
       },
       {
         label: "Network & Cloud Security Testing",
-        href: "/services/cyber-security-services",
+        href: "/services/cybersecurity-services#network-cloud-security-testing",
         desc: "Coverage across network and cloud environments.",
       },
       {
         label: "Compliance-Ready Reporting",
-        href: "/services/cyber-security-services",
+        href: "/services/cybersecurity-services#compliance-ready-reporting",
         desc: "ISO 27001, SOC 2 & PCI DSS reports auditors can use.",
       },
     ],
@@ -229,37 +229,37 @@ export const megaMenu: MegaCategory[] = [
   {
     id: "ai-automation",
     label: "AI Automation",
-    href: "/services/ai-automation-services",
+    href: "/services/ai-automation",
     desc: "AI-powered workflows that remove friction, without opening a new attack surface.",
     items: [
       {
         label: "Workflow Audit & Automation Mapping",
-        href: "/services/ai-automation-services",
+        href: "/services/ai-automation#workflow-audit-automation-mapping",
         desc: "We map your workflow end-to-end before automating it.",
       },
       {
         label: "LLM Integration & Prompt Engineering",
-        href: "/services/ai-automation-services",
+        href: "/services/ai-automation#llm-integration-prompt-engineering",
         desc: "LLMs wired into your tools, governed from the start.",
       },
       {
         label: "RAG & AI Agent Pipelines",
-        href: "/services/ai-automation-services",
+        href: "/services/ai-automation#rag-ai-agent-pipelines",
         desc: "Custom RAG, agents and internal tool pipelines.",
       },
       {
         label: "Secure Data Pipelines",
-        href: "/services/ai-automation-services",
+        href: "/services/ai-automation#secure-data-pipelines",
         desc: "Secure ingestion, normalisation and storage.",
       },
       {
         label: "AI Governance & Access Controls",
-        href: "/services/ai-automation-services",
+        href: "/services/ai-automation#ai-governance-access-controls",
         desc: "Strict data boundaries — your data never trains models.",
       },
       {
         label: "Monitoring, Logging & Iteration",
-        href: "/services/ai-automation-services",
+        href: "/services/ai-automation#monitoring-logging-iteration",
         desc: "Ongoing monitoring retainers as requirements evolve.",
       },
     ],

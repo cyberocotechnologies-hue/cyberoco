@@ -9,10 +9,10 @@
  * 1. `/index.html`            -> `/`
  * 2. `*.html`                 -> same path without the extension
  * 3. `/resourses/*`           -> `/resources/*`  (misspelled legacy folder)
- * 4. `/services/web-app-development-services`
- *                            -> `/services/web-application-development`
- *                               (renamed service slug; matches the path with
- *                               or without a trailing slash)
+ * 4. Renamed service slugs (matched with or without a trailing slash):
+ *      `/services/web-app-development-services` -> `/services/web-application-development`
+ *      `/services/cyber-security-services`      -> `/services/cybersecurity-services`
+ *      `/services/ai-automation-services`       -> `/services/ai-automation`
  *
  * Rules compose in a single hop: `/resourses/sample-pentest-report.html`
  * redirects straight to `/resources/sample-pentest-report`, and
@@ -27,6 +27,8 @@ const PERMANENT = 308;
 // variant redirect in one hop.
 const LEGACY_SERVICE_PATHS: Record<string, string> = {
   "/services/web-app-development-services": "/services/web-application-development",
+  "/services/cyber-security-services": "/services/cybersecurity-services",
+  "/services/ai-automation-services": "/services/ai-automation",
 };
 
 export function proxy(request: NextRequest) {

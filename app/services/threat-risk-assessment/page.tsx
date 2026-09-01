@@ -615,7 +615,7 @@ export default function ThreatRiskAssessmentPage() {
             <span className="engagement-arrow">→</span>
           </Link>
           <Link
-            href="/services/cyber-security-services"
+            href="/services/cybersecurity-services"
             className="engagement-item"
           >
             <h3>Cyber Security Services</h3>

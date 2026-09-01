@@ -2,12 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Reveal from "@/components/motion/Reveal";
 import Marquee from "@/components/motion/Marquee";
+import { site } from "@/content/site";
 
 export const metadata: Metadata = {
   title: "AI Automation Services",
   description:
-    "Secure, governed AI workflow automation from CYBEROCO — LLM integration, custom pipelines and monitoring.",
-  alternates: { canonical: "/services/ai-automation-services" },
+    "Secure, governed AI automation from CYBEROCO — workflow audits, LLM integration, RAG and agent pipelines, governance and ongoing monitoring retainers.",
+  alternates: { canonical: "/services/ai-automation" },
+  openGraph: {
+    title: "AI Automation Services",
+    description:
+      "Secure, governed AI automation from CYBEROCO — workflow audits, LLM integration, RAG and agent pipelines, governance and ongoing monitoring retainers.",
+    type: "website",
+  },
 };
 
 const MARQUEE_ITEMS = [
@@ -58,7 +65,61 @@ const FAQ_JSON_LD = {
   ],
 };
 
-export default function AiAutomationServicesPage() {
+const SUB_SERVICES = [
+  {
+    id: "workflow-audit-automation-mapping",
+    title: "Workflow Audit & Automation Mapping",
+    lead: "We map your workflow end-to-end before automating it.",
+    body: "We map your existing workflow end-to-end before automating any of it, so we're not automating the wrong process faster. The audit identifies where the friction actually sits and which steps are worth automating. Only once that map is agreed do we start designing the automation itself.",
+  },
+  {
+    id: "llm-integration-prompt-engineering",
+    title: "LLM Integration & Prompt Engineering",
+    lead: "LLMs wired into your tools, governed from the start.",
+    body: "Large language models integrated with your existing tools — CRMs, ticketing systems, data warehouses and internal tools — with governance and access control built in from the start, not added later. Guardrails, confidence thresholds and human-in-the-loop checkpoints cover anything customer-facing or business-critical. Feasibility with your stack is confirmed during scoping.",
+  },
+  {
+    id: "rag-ai-agent-pipelines",
+    title: "RAG & AI Agent Pipelines",
+    lead: "Custom RAG, agents and internal tool pipelines.",
+    body: "Custom retrieval-augmented generation, agent and internal-tool pipelines built around how your team actually works — operations, reporting, internal tools and customer-facing workflows. Each pipeline is designed for a specific job rather than bolted on generically. And because it handles your data, we test the automation for misuse as well as function.",
+  },
+  {
+    id: "secure-data-pipelines",
+    title: "Secure Data Pipelines",
+    lead: "Secure ingestion, normalisation and storage.",
+    body: "Secure data ingestion, normalisation and storage underpin every automation we build. The pipeline is scoped, monitored and governed like any other system that handles your data. What the automation can reach, and what stays out of bounds, is defined up front rather than discovered later.",
+  },
+  {
+    id: "ai-governance-access-controls",
+    title: "AI Governance & Access Controls",
+    lead: "Strict data boundaries — your data never trains models.",
+    body: "Every pipeline is designed with strict data boundaries: your data is used to power your workflow, not to train third-party models. Access controls and data governance define who and what can reach which data, designed in from the start rather than retrofitted. The result is an automation your team can trust with sensitive workflows — and one that stands up to review.",
+  },
+  {
+    id: "monitoring-logging-iteration",
+    title: "Monitoring, Logging & Iteration",
+    lead: "Ongoing monitoring retainers as requirements evolve.",
+    body: "We stay engaged after launch with monitoring and iteration retainers, so the automation keeps working as your data and requirements change. Ongoing monitoring and logging catch issues as usage evolves, and the pipeline is iterated with the same guardrails and human-in-the-loop checkpoints it launched with. Where requirements grow, the automation grows with them.",
+  },
+];
+
+const SERVICE_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  name: "AI Automation Services",
+  description:
+    "Secure, governed AI workflow automation from CYBEROCO: workflow audits and automation mapping, LLM integration and prompt engineering, custom RAG and AI agent pipelines, secure data pipelines, AI governance and access controls, and ongoing monitoring and iteration.",
+  provider: {
+    "@type": "Organization",
+    name: "CYBEROCO",
+    url: site.url,
+  },
+  areaServed: "Middle East and North Africa (MENA)",
+  serviceType: "AI Automation",
+};
+
+export default function AiAutomationPage() {
   return (
     <>
       <section
@@ -162,6 +223,28 @@ export default function AiAutomationServicesPage() {
 
       <Marquee items={MARQUEE_ITEMS} speed={24} />
 
+      {SUB_SERVICES.map((service, index) => (
+        <section
+          key={service.id}
+          id={service.id}
+          className={index % 2 === 1 ? "section bg-gray-light" : "section"}
+        >
+          <div className="max-w-3xl">
+            <Reveal
+              variant="fadeUp"
+              start="top 85%"
+              className="flex flex-col gap-5"
+            >
+              <h2 className="text-headline">{service.title}</h2>
+              <p className="text-subheading leading-relaxed c-gray-333">
+                {service.lead}
+              </p>
+              <p className="text-sm leading-relaxed c-gray-555">{service.body}</p>
+            </Reveal>
+          </div>
+        </section>
+      ))}
+
       <section className="section">
         <p className="text-label c-gray-999 mb-12">Our approach</p>
         <div style={{ maxWidth: "40rem" }}>
@@ -264,6 +347,10 @@ export default function AiAutomationServicesPage() {
         </div>
       </section>
 
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(SERVICE_JSON_LD) }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_JSON_LD) }}

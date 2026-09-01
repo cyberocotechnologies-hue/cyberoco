@@ -152,7 +152,7 @@ export default function EducationResearchPage() {
         </div>
         <div className="engagement-grid">
           <Link
-            href="/services/cyber-security-services#web-api-pentest"
+            href="/services/cybersecurity-services#web-api-pentest"
             className="engagement-item"
           >
             <h3>Web & API Penetration Test</h3>
@@ -174,7 +174,7 @@ export default function EducationResearchPage() {
             <span className="engagement-arrow">→</span>
           </Link>
           <Link
-            href="/services/cyber-security-services#vulnerability-assessment"
+            href="/services/cybersecurity-services#vulnerability-assessment"
             className="engagement-item"
           >
             <h3>Vulnerability Assessments</h3>
