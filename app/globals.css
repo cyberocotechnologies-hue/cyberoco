@@ -2108,7 +2108,7 @@ img { max-width: 100%; display: block; }
 @media (min-width: 768px) { .sector-grid { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; } }
 
 /* ════════════════════════════════════════════════════════════════
-   MAINTENANCE: shared "under maintenance" page indicator
+   MAINTENANCE: full-screen "under maintenance" pages
    (reuses the global `pulse` keyframes defined with .availability-dot)
 ════════════════════════════════════════════════════════════════ */
 
@@ -2126,18 +2126,11 @@ img { max-width: 100%; display: block; }
   .maintenance-dot { animation: none; }
 }
 
-.maintenance-dialog {
-  border: 1px solid var(--black);
-  background: var(--white);
-  padding: 2.5rem;
-  max-width: 30rem;
-  width: calc(100vw - 3rem);
-}
-
-.maintenance-dialog::backdrop {
-  background: rgba(0,0,0,0.55);
-  position: fixed;
-  inset: 0;
+/* min-height lives in CSS, not inline styles: the vh/dvh fallback needs
+   two declarations, which a React style object cannot express. */
+.maintenance-screen {
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .text-center { text-align: center; }
