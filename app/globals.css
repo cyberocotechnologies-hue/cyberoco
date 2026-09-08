@@ -2106,3 +2106,26 @@ img { max-width: 100%; display: block; }
 }
 
 @media (min-width: 768px) { .sector-grid { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; } }
+
+/* ════════════════════════════════════════════════════════════════
+   MAINTENANCE: shared "under maintenance" page indicator
+   (reuses the global `pulse` keyframes defined with .availability-dot)
+════════════════════════════════════════════════════════════════ */
+
+.maintenance-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--black);
+  display: inline-block;
+  margin-right: 0.5rem;
+  animation: pulse 2s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .maintenance-dot { animation: none; }
+}
+
+.text-center { text-align: center; }
+.flex-wrap { flex-wrap: wrap; }
+.justify-center { justify-content: center; }
