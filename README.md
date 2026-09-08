@@ -56,22 +56,43 @@ A floating ARIA chat launcher is wired into every page via `app/layout.tsx`.
 The chat panel and the AI SDK are dynamically imported on first open, so the
 first-load JavaScript cost stays near zero.
 
+**Providers:** ARIA runs on NVIDIA Nemotron (`nvidia/nemotron-3-nano-30b-a3b`,
+via NVIDIA's OpenAI-compatible endpoint) whenever `NVIDIA_API_KEY` is set, with
+Google Gemini (`gemini-2.5-flash-lite`) as the fallback when only
+`GEMINI_API_KEY` is configured. The NVIDIA key is free from
+[build.nvidia.com](https://build.nvidia.com) — it starts with `nvapi-` and comes
+with 1000 free credits; check the remaining balance on your build.nvidia.com
+account page. While the credits last, chat is effectively free; once they run
+out, empty `NVIDIA_API_KEY` to fall back to Gemini — an exhausted NVIDIA quota
+already degrades gracefully into the friendly 503 below. NVIDIA's hosted
+endpoint also rate-limits upstream (~40 requests/minute), well above this
+route's own 30 requests/hour/IP. `CHAT_PROVIDER` (`nvidia`|`gemini`) forces a
+specific provider; `CHAT_MODEL` selects a model id within the active provider.
+
 - Endpoint: `POST /api/chat` (`app/api/chat/route.ts`), streamed with the Vercel
-  AI SDK and Google Gemini.
+  AI SDK (NVIDIA Nemotron primary, Google Gemini fallback).
 - Env vars (see `.env.example`):
-  - `GEMINI_API_KEY` - required in production. Create one free at
-    https://aistudio.google.com (the free tier allows roughly 1500 requests/day).
-  - `CHAT_MODEL` - optional model override; defaults to
-    `gemini-2.5-flash-lite`.
+  - `NVIDIA_API_KEY` - optional; when set, Nemotron is the primary chat model.
+    Create one free at https://build.nvidia.com (starts with `nvapi-`; 1000
+    free credits).
+  - `GEMINI_API_KEY` - fallback provider. Create one free at
+    https://aistudio.google.com (the free tier allows roughly 1500
+    requests/day).
+  - `CHAT_MODEL` - optional model override; the default depends on the active
+    provider: `nvidia/nemotron-3-nano-30b-a3b` (NVIDIA) or
+    `gemini-2.5-flash-lite` (Gemini).
+  - `CHAT_PROVIDER` - optional; force `nvidia` or `gemini`. Default: `nvidia`
+    when `NVIDIA_API_KEY` is set, else `gemini`.
   - `CHAT_DISABLED` - set `1` to kill chat instantly without a redeploy;
     `/api/chat` returns 503 and the panel shows its fallback message.
 - Limits: requests are zod-validated (max 12 messages, 800 characters per
   message) and rate-limited to 30 requests/hour/IP (sliding window; 429
-  responses include a `Retry-After` header). Without a key the API serves a
-  canned stream in development and fails loudly (500) in production.
+  responses include a `Retry-After` header). Without any provider key the API
+  serves a canned stream in development and fails loudly (500) in production.
 - Monitoring: watch Vercel Functions usage (Project -> Usage -> Functions) for
-  `/api/chat` invocation volume, and the Google AI Studio quota page for
-  Gemini rate/quota limits. Provider 429/402 errors are mapped to a friendly
+  `/api/chat` invocation volume, your build.nvidia.com account page for
+  remaining Nemotron credits, and the Google AI Studio quota page for Gemini
+  rate/quota limits. Provider 429/402 errors are mapped to a friendly
   503, so a spike in 503s on `/api/chat` usually means quota is exhausted.
 
 ## Project structure

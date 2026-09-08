@@ -7,20 +7,29 @@ import {
   createUIMessageStreamResponse,
   streamText,
   toUIMessageStream,
+  type LanguageModel,
   type TextStreamPart,
   type ToolSet,
 } from "ai";
 import { createGoogle } from "@ai-sdk/google";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { buildSystemPrompt } from "@/lib/chat-system-prompt";
 
 /**
  * POST /api/chat — streaming endpoint for ARIA, the CYBEROCO website
  * assistant.
  *
+ * Provider layer: NVIDIA Nemotron (via NVIDIA's OpenAI-compatible endpoint)
+ * is the primary model while NVIDIA_API_KEY is set; Gemini is the fallback
+ * when only GEMINI_API_KEY is configured. CHAT_PROVIDER ("nvidia" |
+ * "gemini") forces one explicitly. CHAT_MODEL selects a model id WITHIN the
+ * active provider (e.g. a different Nemotron or Gemini id) — it never
+ * switches providers.
+ *
  * Order of defence mirrors /api/contact: Content-Type check -> JSON parse ->
- * rate limit -> zod validation -> provider call. Dev mode (no
- * GEMINI_API_KEY) returns a canned text stream so the UI stays testable
- * locally; production without the key fails loudly instead.
+ * rate limit -> zod validation -> provider call. Dev mode (no provider API
+ * key) returns a canned text stream so the UI stays testable locally;
+ * production without any key fails loudly instead.
  *
  * Streaming error strategy: the response is held back until the provider has
  * either produced content or failed, so pre-flight provider failures (429
@@ -36,7 +45,10 @@ const RATE_LIMIT_MAX = 30; // requests…
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // …per hour, per IP (sliding window)
 
 const MAX_MESSAGES = 12;
-const DEFAULT_MODEL = "gemini-2.5-flash-lite";
+
+const NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1";
+const NVIDIA_DEFAULT_MODEL = "nvidia/nemotron-3-nano-30b-a3b";
+const GEMINI_DEFAULT_MODEL = "gemini-2.5-flash-lite";
 
 const chatRequestSchema = z
   .object({
@@ -106,7 +118,9 @@ function rateLimit(
 /**
  * Whether a provider failure means "busy" (rate limit / quota) rather than a
  * genuine server fault. streamText retries internally, so the failure is
- * usually wrapped in a RetryError once retries are exhausted.
+ * usually wrapped in a RetryError once retries are exhausted. Both providers
+ * surface HTTP failures as APICallError, so NVIDIA quota exhaustion (429)
+ * and Gemini quota (429/402) land on the same path.
  */
 function isProviderBusyError(error: unknown): boolean {
   const cause = RetryError.isInstance(error) ? error.lastError : error;
@@ -116,17 +130,67 @@ function isProviderBusyError(error: unknown): boolean {
   );
 }
 
-/** Dev-mode stand-in stream so the chat UI works without a GEMINI_API_KEY. */
+/** Dev-mode stand-in stream so the chat UI works without any API key. */
 function devCannedStream(): Response {
   const stream = new ReadableStream<string>({
     start(controller) {
       controller.enqueue(
-        "Hello! I'm ARIA, the CYBEROCO assistant. Chat is running in development mode without a GEMINI_API_KEY, so this is a canned reply. Ask me about our cyber security, secure development or AI automation services - or email info@cyberoco.tech.",
+        "Hello! I'm ARIA, the CYBEROCO assistant. Chat is running in development mode without an NVIDIA_API_KEY or GEMINI_API_KEY, so this is a canned reply. Ask me about our cyber security, secure development or AI automation services - or email info@cyberoco.tech.",
       );
       controller.close();
     },
   });
   return createTextStreamResponse({ stream });
+}
+
+type ChatProvider = {
+  id: "nvidia" | "gemini";
+  apiKey: string;
+};
+
+/**
+ * Resolve which provider serves this deployment.
+ *
+ * CHAT_PROVIDER ("nvidia" | "gemini") is an explicit override: the named
+ * provider must have its API key set, otherwise the override is a deploy
+ * misconfiguration and nothing is resolved (production fails loudly rather
+ * than silently switching providers). Default priority: NVIDIA while
+ * NVIDIA_API_KEY is set, else Gemini while GEMINI_API_KEY is set, else none.
+ */
+function resolveChatProvider(): ChatProvider | undefined {
+  const forced = process.env.CHAT_PROVIDER?.trim().toLowerCase();
+  if (forced === "nvidia" || forced === "gemini") {
+    const apiKey =
+      forced === "nvidia" ? process.env.NVIDIA_API_KEY : process.env.GEMINI_API_KEY;
+    return apiKey ? { id: forced, apiKey } : undefined;
+  }
+  if (process.env.NVIDIA_API_KEY) {
+    return { id: "nvidia", apiKey: process.env.NVIDIA_API_KEY };
+  }
+  if (process.env.GEMINI_API_KEY) {
+    return { id: "gemini", apiKey: process.env.GEMINI_API_KEY };
+  }
+  return undefined;
+}
+
+/** Build the language model for the resolved provider. */
+function chatModelFor({ id, apiKey }: ChatProvider): LanguageModel {
+  if (id === "nvidia") {
+    // NVIDIA's OpenAI-compatible endpoint (build.nvidia.com). Note that the
+    // openai-compatible provider exposes chatModel(), not the google
+    // provider's chat().
+    const nvidia = createOpenAICompatible({
+      name: "nvidia",
+      baseURL: NVIDIA_BASE_URL,
+      apiKey,
+    });
+    return nvidia.chatModel(process.env.CHAT_MODEL ?? NVIDIA_DEFAULT_MODEL);
+  }
+  // The default `google` instance reads GOOGLE_GENERATIVE_AI_API_KEY; this
+  // deployment standardises on GEMINI_API_KEY, so build the provider with
+  // the key passed explicitly.
+  const google = createGoogle({ apiKey });
+  return google.chat(process.env.CHAT_MODEL ?? GEMINI_DEFAULT_MODEL);
 }
 
 export async function POST(request: NextRequest) {
@@ -177,31 +241,42 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, errors: fieldErrors }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
+    const provider = resolveChatProvider();
+    if (!provider) {
       if (process.env.NODE_ENV === "production") {
         // Missing key in production is a deploy error — fail loudly rather
         // than silently serving a broken chat.
-        console.error("[chat] GEMINI_API_KEY missing in production");
+        console.error(
+          "[chat] no chat provider configured in production: set NVIDIA_API_KEY or GEMINI_API_KEY",
+        );
         return NextResponse.json({ ok: false }, { status: 500 });
       }
       // Dev mode: no key configured — stream a canned reply so the chat
       // flow stays testable locally.
-      console.log("[chat] dev-mode request (no GEMINI_API_KEY): canned stream");
+      console.log(
+        "[chat] dev-mode request (no NVIDIA_API_KEY/GEMINI_API_KEY): canned stream",
+      );
       return devCannedStream();
     }
 
-    // The default `google` instance reads GOOGLE_GENERATIVE_AI_API_KEY; this
-    // deployment standardises on GEMINI_API_KEY, so build the provider with
-    // the key passed explicitly.
-    const provider = createGoogle({ apiKey });
+    const isNvidia = provider.id === "nvidia";
 
     const result = streamText({
-      model: provider.chat(process.env.CHAT_MODEL ?? DEFAULT_MODEL),
+      model: chatModelFor(provider),
       instructions: buildSystemPrompt(),
       messages: parsed.data.messages,
-      maxOutputTokens: 350,
-      temperature: 0.3,
+      // Nemotron: NVIDIA recommends temperature 1 / top_p 1, and reasoning
+      // models need output headroom for their internal thinking, so the
+      // token ceiling is higher than Gemini's. Gemini keeps its previous
+      // conservative settings.
+      temperature: isNvidia ? 1 : 0.3,
+      topP: isNvidia ? 1 : undefined,
+      maxOutputTokens: isNvidia ? 700 : 350,
+      // reasoning_budget caps Nemotron's thinking tokens. The
+      // openai-compatible provider forwards unknown providerOptions keys
+      // (keyed by provider name) as top-level request-body fields — the
+      // same "extra body" mechanism NVIDIA's own API examples use.
+      providerOptions: isNvidia ? { nvidia: { reasoning_budget: 256 } } : undefined,
       onError: (error) => {
         // Server-side log only; the client never sees provider details.
         console.error("[chat] streaming error:", error);
@@ -272,7 +347,8 @@ export async function POST(request: NextRequest) {
 
     const uiStream = toUIMessageStream({
       stream: replay,
-      // Gemini is a thinking model: keep its internal reasoning server-side.
+      // Gemini and Nemotron are thinking models: keep their internal
+      // reasoning server-side.
       sendReasoning: false,
       // Mask mid-stream failures — never forward provider messages.
       onError: () =>
