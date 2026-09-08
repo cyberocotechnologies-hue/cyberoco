@@ -8,6 +8,7 @@ import Footer from "@/components/layout/Footer";
 import SkipLink from "@/components/layout/SkipLink";
 import CustomCursor from "@/components/motion/CustomCursor";
 import PageFade from "@/components/motion/PageFade";
+import ChatLauncher from "@/components/chat/ChatLauncher";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -77,6 +78,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Navbar />
         <PageFade>{children}</PageFade>
         <Footer />
+        <ChatLauncher />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}

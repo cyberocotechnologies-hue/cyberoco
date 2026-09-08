@@ -50,6 +50,30 @@ CONTACT_FROM=CYBEROCO Website <onboarding@resend.dev>
 - `NEXT_PUBLIC_SITE_URL` — canonical site URL used by metadata, `sitemap.xml`
   and `robots.txt`.
 
+## AI chat assistant (ARIA)
+
+A floating ARIA chat launcher is wired into every page via `app/layout.tsx`.
+The chat panel and the AI SDK are dynamically imported on first open, so the
+first-load JavaScript cost stays near zero.
+
+- Endpoint: `POST /api/chat` (`app/api/chat/route.ts`), streamed with the Vercel
+  AI SDK and Google Gemini.
+- Env vars (see `.env.example`):
+  - `GEMINI_API_KEY` - required in production. Create one free at
+    https://aistudio.google.com (the free tier allows roughly 1500 requests/day).
+  - `CHAT_MODEL` - optional model override; defaults to
+    `gemini-2.5-flash-lite`.
+  - `CHAT_DISABLED` - set `1` to kill chat instantly without a redeploy;
+    `/api/chat` returns 503 and the panel shows its fallback message.
+- Limits: requests are zod-validated (max 12 messages, 800 characters per
+  message) and rate-limited to 30 requests/hour/IP (sliding window; 429
+  responses include a `Retry-After` header). Without a key the API serves a
+  canned stream in development and fails loudly (500) in production.
+- Monitoring: watch Vercel Functions usage (Project -> Usage -> Functions) for
+  `/api/chat` invocation volume, and the Google AI Studio quota page for
+  Gemini rate/quota limits. Provider 429/402 errors are mapped to a friendly
+  503, so a spike in 503s on `/api/chat` usually means quota is exhausted.
+
 ## Project structure
 
 ```
