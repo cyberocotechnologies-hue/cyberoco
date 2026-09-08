@@ -2126,6 +2126,20 @@ img { max-width: 100%; display: block; }
   .maintenance-dot { animation: none; }
 }
 
+.maintenance-dialog {
+  border: 1px solid var(--black);
+  background: var(--white);
+  padding: 2.5rem;
+  max-width: 30rem;
+  width: calc(100vw - 3rem);
+}
+
+.maintenance-dialog::backdrop {
+  background: rgba(0,0,0,0.55);
+  position: fixed;
+  inset: 0;
+}
+
 .text-center { text-align: center; }
 .flex-wrap { flex-wrap: wrap; }
 .justify-center { justify-content: center; }
